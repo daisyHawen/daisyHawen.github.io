@@ -1,0 +1,20 @@
+# Site settings
+title: Daisy花园
+email: daisy_xinglove@163.com
+baseurl: "" # the subpath of your site, e.g. /blog
+#url: "http://yourdomain.com" # the base hostname & protocol for your site
+
+# Sidebar settings
+description: 灵魂和身体都需要奔跑
+
+# Social icons
+facebook: username
+linkedin: username
+github: username
+deviantart: username
+codepen: username
+
+footer: © DaisyHawen
+
+# Build settings
+markdown: kramdown
