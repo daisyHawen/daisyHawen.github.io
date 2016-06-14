@@ -3,7 +3,7 @@ layout: post
 title:  "javascript理解之变量作用域与闭包"
 date:   2016-06-14 11:02:01 -0500
 comments: true
-categories: javascript原型
+categories: javascript
 ---
 
 #何为闭包
