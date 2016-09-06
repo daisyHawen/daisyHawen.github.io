@@ -1,51 +1,32 @@
 (function() {
-	function Flickr() {
+
+
+	// var html = "<button type='button' class='btn btn-default'>测试</button>";
+	// var html = "<img src='../img/1.png'></img>";
+
+
+	/*构造函数模式*/
+	function ProjectShow() {
+		console.log('test');
 		this.init();
+		var flickr = document.getElementById('project');
+		var html = "<img src='../img/1.png' style='width:50px;height:50px;'></img>";
+		var html = html + "<img src='../img/2.png' style='width:50px;height:50px;'></img>"
+		flickr.innerHTML = html;
+
 	}
-
-	Flickr.prototype = {
+	ProjectShow.prototype = {
 		init: function() {
-			this.user = "123194585@N06";
-			this.album = "72157646849974903";
-
-
-			window.getPhotos = this.getPhotos;
-
-			this.getJSON();
+			/*初始化*/
 		},
-		getJSON: function() {
-			var src = "http://api.flickr.com/services/feeds/photoset.gne?nsid=" + this.user + "&set=" + this.album + "&format=json&jsoncallback=getPhotos";
-			var script = document.createElement( "script" );
-				script.src = src;
-				document.body.appendChild( script );
-		},
-		getPhotos: function( data ) {
-			var limit = 4;
+		ConstructHTML: function() {
+			/*构造HTML*/
+			var img = ['../img/1.png', '../img/2.png'];
 
-			if( data && data.items ) {
-				var title = data.title;
-				var items = data.items;
-				var albumTitle = title.replace( "Content from ", "" );
-				var html = "<div class='images'>";
-
-				for( var i = 0; i < items.length; ++i ) {
-					var item = items[i];
-					var n = i + 1;
-					if( n <= limit ) {
-						html += "<a href='" + item.link + "'><img src='" + item.media.m + "' alt='' /></a>";
-					}
-				}
-
-				html += "</div>";
-
-				document.querySelector( "#flickr" ).innerHTML = html;
-			}
 		}
-	};
-
-	document.addEventListener( "DOMContentLoaded", function() {
-		var flickrFeed = new Flickr();
+	}
+	document.addEventListener("DOMContentLoaded", function() {
+		var project = new ProjectShow();
 
 	});
-
 })();
