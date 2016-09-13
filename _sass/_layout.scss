@@ -240,3 +240,26 @@
         }
     }
 }
+
+/*banner*/
+.banner{
+        margin-top:-200px;
+        position:relative;
+        margin-bottom:20px;
+    h1 {
+        color:#fff;
+        position: absolute;
+        left: 18%;
+        top:50%;
+        }
+           h2 {
+        color:#fff;
+        position: absolute;
+        left: 18%;
+        top:68%;
+        }
+    img{
+        width:100%;
+        height:400px;
+    }
+}
