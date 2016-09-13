@@ -243,9 +243,14 @@
 
 /*banner*/
 .banner{
-        margin-top:-200px;
+    
         position:relative;
         margin-bottom:20px;
+.banner-nav{
+    margin-bottom:0px;
+    border-radius:0px;
+    padding-right:50px;
+}
     h1 {
         color:#fff;
         position: absolute;
