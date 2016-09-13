@@ -15,6 +15,7 @@
             </div>
             <hr>
             <div class="navigation">
+                <h2>pages</h2>
                 <ul>
                     {% for my_page in site.pages %} {% if my_page.title %}
                     <li><a href="{{ my_page.url | prepend: site.baseurl }}">{{ my_page.title }}</a></li>
@@ -23,6 +24,7 @@
             </div>
             <hr>
             <div class="navigation">
+            <h2>categories</h2>
                 <ul>
                     {% for category in site.categories %}
                     <li><a href="{{ my_page.url | prepend: site.baseurl }}">{{ category | first }}</a></li>

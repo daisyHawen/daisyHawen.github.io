@@ -10,8 +10,9 @@
 		console.log('test');
 		this.init();
 		var flickr = document.getElementById('project');
-		var html = "<img src='../img/1.png' style='width:50px;height:50px;'></img>";
-		var html = html + "<img src='../img/2.png' style='width:50px;height:50px;'></img>"
+		var html = '<a href="https://daisyhawen.github.io/React-gallery">react实现图片画廊</a>';
+		html += '<br><a href="https://daisyhawen.github.io/html5-canvas-clock/">HTML5-实现倒计时效果</a>';
+		console.log(html);
 		flickr.innerHTML = html;
 
 	}
@@ -21,7 +22,7 @@
 		},
 		ConstructHTML: function() {
 			/*构造HTML*/
-			var img = ['../img/1.png', '../img/2.png'];
+			var img = ['{{ site.baseurl }}/img/1.png', '{{ site.baseurl }}../img/2.png'];
 
 		}
 	}
