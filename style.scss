@@ -254,3 +254,23 @@ a {
 #flickr .images a img {
 	padding: 5px;
 }
+
+/*index.html*/
+ul {
+    list-style-type: none;
+}
+.timeline{
+    text-align:center;
+    background:#212121;
+    border-radius:20px;
+    margin-top:100px;
+    color:#fff;
+}
+.timeline img{
+background:#fff;
+// width:70px;
+// height:70px;
+}
+#timeline-title{
+
+}

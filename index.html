@@ -1,23 +1,27 @@
 ---
 layout: show
 ---
-<div class="post-container">
-
-  <h2 class="post-title">Blog</h2>
-
-  <hr>
-
-  {% for post in site.posts %}
-    <div class ="post-preview">
-      <span class="post-title">
-        <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">
-          {{ post.title }}
-        </a>
-      </span>
-
-      <span class="post-time">
-        <p>{{ post.date | date: "%b %-d, %Y" }}</p>
-      </span>
-    </div> 
-       {% endfor %}
+<div class="timeline">
+    <div class="row">
+        <h2 id="timeline-tittle">Timeline</h2>
+        <ul>
+            <li>
+                <div class="timeline-image">
+                    <img src="{{site.baseurl}}/img/scllogo.png">
+                </div>
+                <div class="timeline-pane">UESTC -- Bachelor 2011-2015</div>
+            </li>
+            <li>
+                <div class="timeline-image">
+                    <img src="{{site.baseurl}}/img/scllogo.png">
+                </div>
+                <div class="timeline-pane">UESTC -- Master 2015-</div>
+            </li>
+            <li>
+                <div class="timeline-image"></div>
+                <div class="timeline-pane">Start Web Coding --2015.03</div>
+            </li>
+        </ul>
+    </div>
 </div>
+
