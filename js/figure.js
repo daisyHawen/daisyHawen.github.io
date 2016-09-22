@@ -96,6 +96,10 @@
              value: 2
          }, {
              category: 0,
+             name: 'angular.js',
+             value: 2
+         }, {
+             category: 0,
              name: 'react.js',
              value: 7
          }, {
@@ -151,6 +155,11 @@
              name: '框架'
          }, {
              source: 'react.js',
+             target: 'javascript',
+             weight: 1,
+             name: '框架'
+         }, {
+             source: 'angular.js',
              target: 'javascript',
              weight: 1,
              name: '框架'
