@@ -1,5 +1,5 @@
 ---
 layout: page
-title: Home
-permalink: /
+title: 工程
+permalink: /project/
 ---
