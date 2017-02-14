@@ -2,20 +2,21 @@
 layout: post
 title:  " Javascript模块化编程——使用AMD，CommonJS，ES Harmony"
 date:   2016-09-08 19:17:13
-categories: html5
+categories: javascript
 ---
-定一个小目标，每周翻译一篇国外优秀博客
+
 原文链接 https://addyosmani.com/writing-modular-js/
 以及参考了 http://nuysoft.com/2014/01/24/authoring-umd-modules/
 http://www.ruanyifeng.com/blog/2012/11/require_js.html
 
-#AMD-异步模块规范
+# AMD-异步模块规范
 **个人理解：**
 首先AMD模式，所谓异步模块加载。
 就是先加载数组里面得模块，然后等到加载完毕，才执行匿名函数。
 
 随着RequireJS成为最流行的实现方式，异步模块规范（AMD）在前端界已经被广泛认同。
 它采用异步方式加载模块，**模块的加载不影响它后面语句的运行。所有依赖这个模块的语句，都定义在一个回调函数中，等到加载完成之后，这个回调函数才会运行。**
+
 ```
     //    文件名: foo.js
     define(["jquery"], function ($) {
@@ -39,7 +40,8 @@ require([module], callback);参数[module]
 　　　　math.add(2, 3);
 　　});
 ```
-#CommonJS
+
+# CommonJS
 
 个人理解：
 commonJS的规范是用nodeJS引出来的。
@@ -59,8 +61,8 @@ commonJS的规范是用nodeJS引出来的。
     module.exports = myFunc;
 ```
 
-##requireJS
-###为什么要使用requireJS
+## requireJS
+### 为什么要使用requireJS
 最早的时候，所有Javascript代码都写在一个文件里面，只要加载这一个文件就够了。后来，代码越来越多，一个文件不够了，必须分成多个文件，依次加载。下面的网页代码，相信很多人都见过。
 
 ```
@@ -80,13 +82,14 @@ commonJS的规范是用nodeJS引出来的。
 　<script src="js/require.js"></script>
 ```
 
-#UMD模式
+# UMD模式
 然后我现在要学习的就是这个模式。
 
 如果是在**浏览器**中运行代码，那么 AMD 模块 是个非常好的选择。
 如果运行在**服务端环境**，例如 RingoJS 或 node.js，那么 CommonJS 模块 是最简单的选择。
 
 **一个AMD包裹为UMD的例子**
+
 ```
 (function (define) {
 
@@ -121,6 +124,7 @@ commonJS的规范是用nodeJS引出来的。
 如果 AMD 环境嗅探的结果为 false，代码则模拟一个类似 node.js 的 CommonJS 环境。为了使 AMD 代码能够运行，IIFE 注入了一个行为类似于 AMD define 的函数：把所有的 ids 加载为模块，并把它们作为参数注入工厂函数。然后，函数 define 获取到工厂函数的返回值，并以经典的 node.js 方式赋值给 module.exports。
 
 感觉下面的例子好理解一点：
+
 ```
 (function (root, factory) {
         if (typeof define === "function" && define.amd) {
@@ -141,7 +145,9 @@ commonJS的规范是用nodeJS引出来的。
         return myFunc;
     }));
 ```
+
 下面是更复杂的例子，它依赖了多个组件并且暴露多个方法:
+
 ```
  (function (root, factory) {
         if (typeof define === "function" && define.amd) {
@@ -166,7 +172,9 @@ commonJS的规范是用nodeJS引出来的。
             c: c
         }
 ```
+
 一个用UMD模式写的print.js
+
 ```
 (function(root, factory) {
     if (typeof define === 'function' && define.amd) {

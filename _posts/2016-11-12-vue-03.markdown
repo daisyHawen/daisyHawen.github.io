@@ -1,0 +1,203 @@
+---
+layout: post
+title:  "vuejs使用指南（一）"
+date:   2016-11-12 22:02:01 -0500
+comments: true
+categories: vue javascript
+---
+
+前言
+最近在写一个项目，然后由于采用的前后端分离传递数据，页面的渲染由前端来完成，于是就想说试一下vuejs，因为实在是不想用jq的dom操作，jq的dom操作对于页面的节点增加和删除，我感觉还好。但是用于表单的渲染，确实要不断地获取dom，并对节点进行更改操作，确实很复杂。
+
+# 说一下项目背景
+是做一个助管工资录入系统，我为什么接了这个活儿了呢，因为是采用前后端分离，感觉能学到很多东西。没错，又只有我一个前端，美工的活儿也一块儿干了，唉~。
+然后就想学习一下最近很火的MVVM框架。
+之前想用angularjs，后来放弃了，因为angularjs实在是有点笨重，是google研发的吧，读API还要经过脑子翻译一下。
+于是用了Vue，Vue是国内团队开发的框架，很轻量，目前很多公司也在用这个框架。
+
+# 开始
+因为我这个项目不大，所以也就不用webpack什么的呢，直接下载了vue.js就可以开始写代码了。
+最开始是要绑定一个div内容
+
+```html
+<div id="main-data">
+/*content*/
+</div>
+```
+
+js部分
+
+```vue
+new Vue({
+    el: '#main-data',
+    data: {
+        /*声明一些数据*/
+    },
+    methods:{
+      /*声明一些方法*/
+    }
+
+```
+
+就完成了
+## vue的双向绑定
+
+以下是本项目的一点儿代码
+
+```html
+ <div class="panel panel-default">
+            <div class="panel-heading">已添加信息</div>
+            <div class="panel-body">
+                <table class="table table-bordered mt-10">
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>所在单位</th>
+                        <th>科室</th>
+                        <th>银行卡号</th>
+                        <th>联系电话</th>
+                        <th>申请年月</th>
+                        <th>申请金额</th>
+                        <th>状态</th>
+                    </tr>
+                    <tr v-for="item in items" track-by="$index">
+                        <td>{{item.stuID}}</td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.szdw}}</td>
+                        <td>{{item.ks}}</td>
+                        <td>{{item.creditNum}}</td>
+                        <td>{{item.tel}}</td>
+                        <td>{{item.helpDate}}</td>
+                        <td>{{item.money}}</td>
+                        <td>{{item.status}}</td>
+                    </tr>
+                </table>
+                <div>
+                    <button class="btn btn-default" v-on:click="submitData">提交</button>
+                </div>
+            </div>
+        </div>
+```
+
+js文件部分是这样的
+
+```
+var table = new Vue({
+    el: '#main-data',
+    data: {
+        items: [],
+        new_item: '',
+        message: 'message',
+        query: '',
+        temp: '',
+    },
+    methods: {
+        /*显示数据*/
+        showData: function() {
+            var _self = this;
+            $.getJSON("../json/data.json", function(result) {
+                _self.items = result;
+            });
+            console.log(_self.message);
+        },
+        /*添加数据到下方的表中，不提交*/
+        join: function() {
+            var _self = this;
+            _self.new_item.helpDate = _self.temp.helpDate;
+            _self.new_item.money = _self.temp.money;
+            _self.items.push(_self.new_item);
+        },
+        ...
+    )}
+```
+
+一旦有item提交进来，接回push进入items，这样子页面就会自动更新。
+以下是生成的代码。
+
+![这里写图片描述](http://img.blog.csdn.net/20160928111028191)
+
+## Vue的属性绑定和事件绑定
+
+vue的事件绑定和属性绑定也特别简单
+
+### 事件绑定
+
+```html
+<div class="modal-content">
+   <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">申请</h4>
+  </div>
+   <div class="modal-body">
+       <label for="">年月：</label>
+       <input v-model="temp.helpDate" type="text" class="form-control" placeholder="">
+       <label for="">薪资：</label>
+        <input v-model="temp.money" type="text" class="form-control" placeholder="">
+       </div>
+       <div class="modal-footer">
+       <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+       <button type="button" v-on:click="join" class="btn btn-primary">提交更改</button>
+       </div>
+</div>
+```
+
+这里的button（提交更改）就用到了事件绑定，绑定了额join方法
+
+```
+v-on:click="join"
+```
+join方法就写在vue的methods里面
+![这里写图片描述](http://img.blog.csdn.net/20160928111700381)
+
+### 属性绑定
+
+依然是上面的例子
+
+```html
+   <label for="">年月：</label>
+   <input v-model="temp.helpDate" type="text" class="form-control" placeholder="">
+   <label for="">薪资：</label>
+   <input v-model="temp.money" type="text" class="form-control" placeholder="">
+```
+
+在每个input上面写了 v-model=“”
+这样input的value就绑定到了temp上面，temp是在Vue 的data中声明的。
+
+## 其他
+与Ajax联合使用，用了这么久还是离不开jq里的ajax，实在是太好用了
+
+**请求数据**
+
+向服务器请求数据，绑定在自己的data中，并显示在页面。
+
+```javascript
+    showData: function() {
+            var _self = this;
+            $.getJSON("../json/data.json", function(result) {
+                _self.items = result;
+            });
+            console.log(_self.message);
+        },
+```
+
+**提交数据**
+这里以json提交数据
+
+```javascript
+    $.ajax({
+                type: "POST",
+                url: "#",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(_self_query),
+                dataType: "json",
+                success: function(result) {
+                    _self.new_item = result;
+                },
+                error: function(message) {
+                    alert("提交数据失败！");
+                }
+            });
+```
+
+##题外话
+目前项目还在写当中，一边探索Vue一边写，然后觉得Vue真的是刷新了我对传统前端的认知，确实很好用。

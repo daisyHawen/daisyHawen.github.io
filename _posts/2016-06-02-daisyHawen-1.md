@@ -2,7 +2,7 @@
 layout: post
 title:  "javascript-闭包"
 date:   2016-06-13 11:17:13
-categories: other
+categories: javascript
 ---
 
 # 何为闭包
@@ -36,7 +36,7 @@ function f(){
 }
 ```
 
-##作用域链
+## 作用域链
 
 首先，每一段代码（全局代码或函数）都有一个与之关联的作用域链（scope chain），这个作用域链可以是一个对象列表或者链表，这组对象定义了这段代码“作用域中”的变量。
 当javscript需要查找变量x的值时候（变量解析（variable resolution）），它会从链中的第一个对象开始查找，如果这个对象有名为x的属性，就会使用这个x的值；否则，找链中的下一个对象；以此类推，直到最顶端，如果仍然没有找到，就抛出引用错误（ReferenceError）异常。
@@ -66,11 +66,13 @@ function f(){
 　　var result=f1();
 　　result(); // 999
 ```
+
 这里外部函数可以读取f1()中的n，是因为内部函数f2()可以读取f1的局部变量，通过返回f2，f2的作用域链有n，因此可以获取n的值。
 我的理解：
 ![这里写图片描述](http://img.blog.csdn.net/20160613102605082)
 
 ### 用途二：使内部函数的变量一直在内存中
+
 ```
 var uniqueInteger = (function() {
     var counter = 0;
@@ -79,10 +81,11 @@ var uniqueInteger = (function() {
     }
 }());
 ```
+
 ![这里写图片描述](http://img.blog.csdn.net/20160613101541260)
 
 
-##实用的闭包
+## 实用的闭包
 
 一般说来，可以使用只有一个方法的对象的地方，都可以使用闭包。
 
@@ -185,6 +188,7 @@ setupHelp(); ////每次都停留在'Your age (you must be over 16)'
 三次循环先执行结束，实际上在执行onfocus() 的时候，传入showHelp的都是都是对 helpText[2].help了。
 
 解决这个问题的一种方案是使onfocus指向一个新的闭包对象。
+
 ```
 function showHelp(help) {
   document.getElementById('help').innerHTML = help;
@@ -211,7 +215,8 @@ function setupHelp() {
 
 setupHelp();
 ```
-##最后，使用闭包要慎重的
+
+## 最后，使用闭包要慎重的
 因为涉及到占用内存，因为每次生成一个函数对象就会在内存中开辟一定的空间来存储它的环境，因此，适当的使用闭包。
 
 ```
@@ -230,6 +235,7 @@ var newobj1=MyObject('x','hello');
 var newobj2=MyObject('y','javascript');
 newobj1.getName()==newobj2.getName();//false
 ```
+
 这样写的坏处就是，每次构造MyObject的时候都会为getName()和getMessage()划分新的内存，这样是很不划算的。
 而把他写成下面的形式就好了。
 因为原型中的方法指向同一片内存（突然在想可不可以把prototype理解为指针，它指向的区域放了原型函数以及用户定义的原型函数）
@@ -251,6 +257,7 @@ var newobj1=MyObject('x','hello');
 var newobj2=MyObject('y','javascript');
 newobj1.getName()==newobj2.getName();//true
 ```
+
  * * *
  
 这篇文章参考了《javascript权威指南》

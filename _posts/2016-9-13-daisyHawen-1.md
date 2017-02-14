@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "test"
+title:  "html5之本地存储"
 date:   2016-09-08 19:17:13
 categories: html5
 ---

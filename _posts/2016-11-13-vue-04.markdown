@@ -1,0 +1,243 @@
+---
+layout: post
+title:  "Vue使用指南（二）"
+date:   2016-10-13 22:02:01 -0500
+comments: true
+categories: vue javascript
+---
+经过一个国庆没有写代码，感觉突然就生疏了，于是先总结一下国庆节之前的工作，并介绍一下用到的Vue技术。
+这里讲一下，我是如何用Vue实现分页的。
+
+**html部分——分页代码**
+
+```html
+<nav>
+    <ul class="pagination">
+     <li v-bind:class="{'disabled': page.disabled, 'active': page.active }" v-for="page in pages">
+     <a v-on:click="submitPage(page.content)">{\{page.content}\}</a> 
+     </li>
+     </ul>
+</nav>
+
+<!-- html部分——表格代码 -->
+<table class="table table-bordered mt-10">
+   <tr>
+       <th>学号</th>
+       <th>姓名</th>
+       <th>学院编号</th>
+       <th>学院名称</th>
+       <th>科室名称</th>
+       <th>联系电话</th>
+       <th>银行名称</th>
+       <th>操作</th>
+   </tr>
+   <tr v-for="item in items" track-by="$index">
+       <td>{{item.stuId}}</td>
+       <td>{{item.name}}</td>
+       <td>{{item.deptId}}</td>
+       <td>{{item.deptName}}</td>
+       <td>{{item.creditNum}}</td>
+       <td>{{item.tel}}</td>
+       <td>{{item.bankName}}</td>
+       <td>
+       <button class="btn btn-default" data-toggle="modal" data-target="#myModal-delete" v-on:click="deleteZG(item.stuId,item.name)">删除</button>
+        </td>
+   </tr>
+ </table>
+
+```
+
+a 的click事件会传page.content给submitPage方法。
+同时，html部分主要用到了vue里面的class绑定：
+
+```
+v-bind:class="{'disabled': page.disabled, 'active': page.active }"
+```
+
+这里我用的是page渲染li，通过遍历pages，生成li列表。
+page中包含属性 disabled和active，分别表示当前li元素是否是处于可用状态，或者是active（点击）状态。
+通过改变page.disabled 和 page.active就可以很好的改变class属性了。
+这也是vue原API文档提到的
+我们可以传给 v-bind:class 一个对象，以动态地切换 class。注意 v-bind:class 指令可以与普通的 class 特性共存：
+
+```html
+<div class="static" v-bind:class="{ 'class-a': isA, 'class-b': isB }"></div>
+data: {
+  isA: true,
+  isB: false
+}
+```
+
+渲染为：
+
+```html
+<div class="static class-a"></div>
+```
+***
+因此js主要是通过总页码，以及捕获点击的页面来获取当前页码。会动态的向服务器提交数据请求，提交数据为页码，以及每页显示的数量，并将返回数据更新到items，items更新会导致页面动态绑定的表格中的item更新。
+
+**js部分**
+
+```javascript
+var zhuguan_info = new Vue({
+    el: '#zhuguan-data',
+    data: {
+        /*查询对象*/
+        query: {
+            "row": 10,
+            "cur_page": 1
+        },
+        /*每页显示的列数*/
+        rows: 5,
+        /*pageNum 总页数*/
+        pageNum: 1,
+        /*当前页码*/
+        curPage: 1,
+        /*pages用于构造page*/
+        pages: [],
+        /*列表中的项目*/
+        items: [],
+        /*选中删除的助管对象*/
+        deleteItem: '',
+        /*要添加的助管对象*/
+        addItem: '',
+        currentView: ''
+    },
+    methods: {
+        /*初始化*/
+        init: function() {
+            var _self = this;
+            this.getBanks();
+            this.getDept();
+        },
+        /*查询数据*/
+        queryData: function() {
+            var _self = this;
+            var query = JSON.stringify(_self.query);
+            console.log(query);
+            /*在查询之前先获取总页码*/
+            _self.getPageNum();
+            $.ajax({
+                type: "POST",
+                url: "#",
+                data: query,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function(result) {
+                    $.each(result, function(i, vlaue) {
+                        _self.items.push(value);
+                    })
+                }
+            });
+            /*更新分页*/
+            _self.pagine(_self.page, _self.curPage)
+        },
+        /*根据row和page请求数据*/
+        getDataPage: function(cur_page) {
+            var _self = this;
+            _self.query = {
+                "row": 10,
+                "cur_page": cur_page || 1
+            }
+            _self.queryData();
+        },
+        /*处理分页查询*/
+        submitPage: function(p) {
+            console.log(p);
+            if (p === ">>") {
+                _self.curPage++;
+                _self.getDataPage(_self.curPage);
+            } else if (p === "<<") {
+                _self.curPage--;
+                _self.getDataPage(_self.curPage);
+            } else {
+                _self.curPage = p;
+                _self.getDataPage(_self.curPage);
+            }
+        },
+        /*getPageNum:向服务器请求分页的数量*/
+        getPageNum: function() {
+            var _self = this;
+            $.ajax({
+                type: "GET",
+                url: '#',
+                dataType: "json",
+                success: function(result) {
+                    _self.page = result.page;
+                }
+            });
+        },
+        /*处理分页
+         *输入参数:t_p(总页数),cur_p(当前页数)
+         */
+        pagine: function(t_p, cur_p) {
+            console.log('test');
+            var _self = this;
+            //总页数,默认为1
+            var total_page = t_p || 1;
+            //当前页数，默认为1
+            var cur_page = cur_p || 1;
+            /*处理分页*/
+            _self.pages = [];
+            var prev = {
+                "disabled": false,
+                "active": false,
+                "content": "<<"
+            };
+            var next = {
+                "disabled": true,
+                "active": false,
+                "content": ">>"
+            }
+            if (total_page === 1) {
+                console.log('total_page === 1');
+                _self.pages.push(prev);
+                _self.pages.push({
+                    "disabled": true,
+                    "active": false,
+                    "content": "1"
+                });
+                _self.pages.push(next);
+            } else if (total_page === cur_page) {
+                /*当前页数==尾页*/
+                prev.disabled = false;
+                _self.pages.push(prev);
+                for (var i = 1; i < total_page; i++) {
+                    var item = {
+                        "disabled": false,
+                        "active": false,
+                        "content": i
+                    };
+                    if (i === cur_page) {
+                        item.active = true;
+                    };
+                    _self.pages.push(item);
+                }
+                _self.pages.push(next);
+
+            } else {
+                prev.disabled = false;
+                next.disabled = false;
+                _self.pages.push(prev);
+                for (var i = 1; i <= total_page; i++) {
+                    var item = {
+                        "disabled": false,
+                        "active": false,
+                        "content": i
+                    };
+                    if (i === cur_page) {
+                        /*如果i==当前页，设置active为true*/
+                        item.active = true;
+                    };
+                    _self.pages.push(item);
+                }
+                _self.pages.push(next);
+            }
+            _self.curPage = cur_page;
+        }
+    }
+});
+zhuguan_info.pagine(4, 2);
+```
+
+其实分页的原理很简单知，确实很好用。

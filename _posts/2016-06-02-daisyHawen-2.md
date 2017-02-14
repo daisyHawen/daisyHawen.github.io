@@ -3,7 +3,6 @@ layout: post
 title:  "Html5——本地数据库"
 date:   2016-06-08 19:17:13
 categories: html5
-tags:[html5]
 ---
 
 # 本地存储

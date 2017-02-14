@@ -2,7 +2,7 @@
 layout: post
 title:  "jQuery深入之源码解析（四）——分离构造器"
 date:   2016-06-27 10:17:13
-categories: html5
+categories: javascript code jqeury
 ---
 
 继续来看构造函数

@@ -1,0 +1,214 @@
+---
+layout: post
+title:  "Vue+webpack构建单页router应用（二）"
+date:   2016-12-12 22:02:01 -0500
+comments: true
+categories: vue javascript webpack
+---
+
+# 嵌套路由
+
+其实很简单，主要是vue2.0有一些变更。
+所以要多看API文档，少看网上的教程 = =
+
+## 配置路由
+
+配置路由，这里为Home配置了两个子路由news和message
+
+```javascript
+const routes = [{
+    path: '/Hello',
+    component: Hello
+}, {
+    path: '/Home',
+    component: Home,
+    children: [{
+        path: 'news',
+        component: News
+    }, {
+        path: 'message',
+        component: Message
+    }]
+}, {
+    path: '/About',
+    component: About
+}];
+```
+
+## 路由的使用
+
+写在Home.vue中，其实跟app.vue一样。
+
+```javascript
+<template>
+    <div>
+    <div>
+        <h1>Home</h1>
+        <p>{{msg}}</p>
+    </div>
+    <div>
+        <ul class="nav nav-tabs">
+            <li>
+                <router-link  to="/Home/news">News</router-link>
+            </li>
+            <li>
+                <router-link  to="/Home/message">Message</router-link>  
+            </li>
+        </ul>
+        <router-view></router-view>
+    </div>
+    </div>
+</template>
+```
+
+## 效果预览
+
+/home
+
+![这里写图片描述](http://img.blog.csdn.net/20161213152327929?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+点击message后，显示在home的router-view中
+
+![这里写图片描述](http://img.blog.csdn.net/20161213152306534?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+# 命名路由
+有时候觉得在
+
+```
+<router-link  to="/Home/news">News</router-link>
+```
+
+中写一大堆的“/Home/news”这种长长的路由确实很麻烦，那么解决方法来了
+通过指定路由一个名字，比如这样 name: 'detail'
+那么访问的时候就可以把
+
+```
+<router-link  to="/Home/news/detail/">News</router-link>
+```
+
+写成
+
+```
+<router-link  to="detail">News</router-link>
+```
+
+
+# 动态路由
+
+所谓动态路由就是，在访问某个页面的时候后面带参数
+比如 这样的一个访问 http://localhost:8080/#/Home/news/detail/03
+后面的03就是跟的参数。
+我们希望可以在detail页面可以获取这个参数，vue-router给了我们一个很好的方法。
+通过 $route.params.id 就可以获取。
+
+那么这个id是怎么传过去的呢，看一下代码
+
+```javascript
+<template>
+<div>
+    <ul>
+        <li v-for="news in newsList">
+            <router-link :to="{ name: 'detail', params: { id: news.id} }">{{news.title}}</router-link>
+        </li>
+    </ul>
+    <div>
+        <router-view></router-view>
+    </div>
+</div>
+</template>
+
+<script>    
+    export default{
+        data: function(){
+            return {
+                newsList: [
+                    { id: '01', title: 'News 01'},
+                    { id: '02', title: 'News 02'},
+                    { id: '03', title: 'News 03'}
+                ]
+            }
+        }
+    }   
+</script>
+```
+
+没错这里，指定了路由路径和参数params
+之前写的rooter-link 中的to是写死的，所以不需要动态绑定，这里的to前面写了:to ，道理跟绑定value一样
+
+```
+   <router-link :to="{ name: 'detail', params: { id: news.id} }">{{news.title}}</router-link>
+```
+
+另外看一下官方的说明
+
+| 声明式 | 编程式     |
+| ------------- |------------- |
+|router-link :to="..."| router.push(...) |
+
+to其实是router.push的语法糖
+
+router.push提供了以下的方法：
+
+```javascript
+// 字符串
+router.push('home')
+
+// 对象
+router.push({ path: 'home' })
+
+// 命名的路由
+router.push({ name: 'user', params: { userId: 123 }})
+
+// 带查询参数，变成 /register?plan=private
+router.push({ path: 'register', query: { plan: 'private' }})
+```
+
+好了，话不多说，看一下效果
+
+这是newsDetail文件
+
+```javascript
+<template>
+    <div>
+        News Detail - {{$route.params.id}} ......
+    </div>
+</template>
+```
+
+运行效果
+![这里写图片描述](http://img.blog.csdn.net/20161213160823986?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+成功显示了我们传入的参数。
+![这里写图片描述](http://img.blog.csdn.net/20161213160830512?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+路由也可以配置查询参数
+
+```
+<a v-link="{ name: 'detail' , params: {id: news.id } , query: {a: 'xyz'} }">{{ news.title }}</a>
+```
+
+我们在app.vue中写了一个模块，用于显示当前路径，参数，路由名称，查询对象
+
+```
+ <div class="row">
+      <div class="col-xs-offset-2 col-xs-8">
+        <div class="well">
+          <p>当前路径：<code>{{$route.path}}</code></p>
+          <p>当前参数：<code>{{$route.params | json}}</code></p>
+          <p>路由名称：<code>{{$route.name}}</code></p>
+          <p>路由查询参数：<code>{{$route.query | json}}</code></p>
+        </div>
+      </div>
+    </div>
+```
+
+测试效果，是不是很棒！！
+
+![这里写图片描述](http://img.blog.csdn.net/20161213161611747?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+至此，vue-router的基本功能就算学习完了。
+
+参考http://www.cnblogs.com/keepfool/p/5690366.html
+不过这篇文章是基于vue1.x版本的，所以着实遇到了很多坑啊。
+源码在https://github.com/daisyHawen/vue-webpack-router
+demo在 [vue-webpack-demo](https://daisyhawen.github.io/vue-webpack-router)

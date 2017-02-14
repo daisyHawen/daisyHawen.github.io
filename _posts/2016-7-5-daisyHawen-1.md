@@ -2,7 +2,7 @@
 layout: post
 title:  "关于Git分支的删除"
 date:   2016-06-27 10:17:13
-categories: html5
+categories: Git other
 ---
 .. _git-operations:
 
