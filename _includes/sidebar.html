@@ -2,7 +2,6 @@
 <div class="container">
     <div class="row">
         <div class="col-md-2" id="leftCol">
-            <!-- <div id="picture" style="background-image: url(https://avatars3.githubusercontent.com/u/10508405?v=3&s=460)"></div> -->
             <div id="picture" style="background-image: url({{ site.baseurl }}/1.JPG)"></div>
             <p>{{site.description}}</p>
             <hr>
@@ -15,32 +14,18 @@
             </div>
             <hr>
             <div class="navigation">
-                <h2>pages</h2>
                 <ul>
                     {% for my_page in site.pages %} {% if my_page.title %}
-                    <li><a href="{{ my_page.url | prepend: site.baseurl }}">{{ my_page.title }}</a></li>
+                    <li><a href="{{ my_page.url | prepend: site.baseurl }}">{{ my_page.title}}</a></li>
                     {% endif %} {% endfor %}
                 </ul>
             </div>
             <hr>
-            <div class="navigation">
-            <h2>categories</h2>
-                <ul>
-                    {% for category in site.categories %}
-                    <li><a href="{{ my_page.url | prepend: site.baseurl }}">{{ category | first }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <hr>
-            <p>Project
+            <p>{{site.footer}}
                 <p>
-                    <div id="project"></div>
-                    <hr>
-                    <p>{{site.footer}}
+                    <p>Powered by Jekyll
                         <p>
-                            <p>Powered by Jekyll
-                                <p>
-                                    <hr>
+                            <hr>
         </div>
         <div class="col-md-10 content">
             {{ content }}
