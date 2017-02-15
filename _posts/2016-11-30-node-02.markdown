@@ -1,0 +1,207 @@
+---
+layout: post
+title:  "Node.js（二）——模块和包"
+date:   2016-11-30 11:02:01 -0500
+comments: true
+categories: node javascript
+---
+
+这篇文章是Node.js第二篇，之所以要来写这些，是因为想把看过的书都记录下来，第一篇文章是从头开始讲Node.js——异步与事件驱动。
+看的书名叫做《Node.js开发指南》
+从元旦之后就给自己立了一个flag，每个星期看完以本书，最近比较闲，主要是花在这部书上的精力也还蛮多的吧，现在已经翻了1/4了，嗯，一个星期已经过去一半了，不知道能不能看完呀。闲话少说，来说重点吧。
+
+这一篇主要是讲模块和包
+主要分四节：
+
+- 什么是模块
+- 如何创建并加载模块
+- 如何创建包
+- 如何使用包管理器
+
+# 什么是模块
+
+> 模块是 Node.js  应用程序的基本组成部分，文件和模块是一一对应的。换言之，一个 Node.js 文件就是一个模块，这个文件可能是 JavaScript  代码、JSON  或者编译过的 C/C++ 扩展。
+
+简而言之，也就是说一个文件就是一个模块。
+
+# 如何创建并加载模块
+
+前面说了一个node.js文件就是一个模块，那么如何创建它，或者说加载这个模块呢？
+node.js遵循commonJS的规范，使用require加载和export导出。
+什么是commonJS规范，我之前也有讨论过:[Javascript模块化编程——使用AMD，CommonJS，ES Harmony](http://blog.csdn.net/sinat_25127047/article/details/52502800)
+另外模块的导出，我也转过一篇很好的文章，因为我们有些时候会导出整个node.js文件，有些时候只需要一个对象。[Node.js中exports和module.exports有什么不同？](http://blog.csdn.net/sinat_25127047/article/details/52369018)
+这里跟着书上的代码再过一遍吧。
+module.js
+
+```javascript
+var name;
+exports.setName = function(thyName) {
+    name = thyName;
+}
+exports.sayHello = function() {
+    console.log('Hello' + name);
+}
+```
+
+getModule.js
+
+```javascript
+var myModule = require('./module.js');
+myModule.setName('daisy_Hawen');
+myModule.sayHello()
+```
+
+这个确实跟创建一个对象，再声明一个对象没什么区别啊。但是在node.js这种写后台语言的环境下这么做或许好一些吧。
+上面这段代码感觉跟下面这段代码完全没区别，其实就是换了一种CommonJS规范的写法而已，我觉得。
+
+```javascript
+var module = (function() {
+    var name,
+        setName = function(thyName) {
+            name = thyName
+        },
+        sayHello = function() {
+            console.log('Hello' + name);
+        }
+    return {
+        setName: function(thyName) {
+            setName(thyName)
+        },
+        sayHello: function() {
+            sayHello()
+        }
+    }
+})
+
+var myModule = new module()
+myModule.setName('Hawen');
+myModule.sayHello();
+```
+这种接口封装方式比许多语言要简洁得多，同时也不失优雅，未引入违反语义的特性，符合传统的编程逻辑。在这个基础上，我们可以构建大型的应用程序，npm 提供的上万个模块都是通过这种简单的方式搭建起来的。
+但是在后续用到npm里面肯定非常好吧。
+
+## 单次加载
+
+上面这个例子有点类似于创建一个对象，但实际上和对象又有本质的区别，因为 require 不会重复加载模块，也就是说无论调用多少次 require，获得的模块都是同一个。我们在 getmodule.js 的基础上稍作修改： 
+
+```javascript
+var myModule1 = require('./module.js');
+myModule1.setName('daisy_Hawen');
+
+var myModule2 = require('./module.js');
+myModule2.setName('ahahah');
+myModule2.sayHello() //helloahahah
+myModule1.sayHello();//helloahahah
+
+```
+
+但是基于对象的创建就不一样了。
+
+```javascript
+var module = (function() {
+    var name,
+        setName = function(thyName) {
+            name = thyName
+        },
+        sayHello = function() {
+            console.log('Hello' + name);
+        }
+    return {
+        setName: function(thyName) {
+            setName(thyName)
+        },
+        sayHello: function() {
+            sayHello()
+        }
+    }
+})
+
+var myModule = new module()
+myModule.setName('Hawen');
+var myModule2 = new module()
+myModule2.setName('ahahah');
+myModule.sayHello();//helloaHawen
+myModule2.sayHello();//helloahahah
+```
+
+**区别：通过对象创建的myModule2相当于创建了一个新的module实例，因此myModule2的修改不会影响myModule。
+但是通过require加载的，每次只加载一个，无论声明多少次require，他们指向的都是同一个对象。**
+这里也就解释了我前面的疑惑。
+
+## 覆盖exports
+
+假如我们是将一个对象封装在模块中的话，例如：
+
+```javascript
+function Hello() {
+    var name;
+    this.setName = function(thyName) {
+        name = thyName;
+    };
+    this.sayHello = function() {
+        console.log("Hello" + name);
+    }
+}
+exports.Hello = Hello;
+```
+
+那么在另一个模块中引用该模块就需要 var newHello = new Hello.Hello;这样写来看上去非常不好看
+
+```javascript
+var Hello = require('./sinleobject.js')
+var newHello = new Hello.Hello;
+
+newHello.setName('hawen');
+newHello.sayHello();
+```
+
+因此把上面的exports.Hello = Hello;改成 module.exports = Hello; 就完美了
+
+```javascript
+var Hello = require('./sinleobject.js')
+var newHello = new Hello;
+
+newHello.setName('hawen');
+newHello.sayHello();
+```
+注意，模块接口的唯一变化是使用 module.exports = Hello 代替了 exports.Hello= Hello 。在外部引用该模块时，其接口对象就是要输出的  Hello   对象本身，而不是原先的 exports。 
+
+事实上，exports  本身仅仅是一个普通的空对象，即 {} ，它专门用来声明接口，本质上是通过它为模块闭包的内部建立了一个有限的访问接口。因为它没有任何特殊的地方，所以可以用其他东西来代替，譬如我们上面例子中的 Hello 对象。 
+警告： 
+
+> 不可以通过对  exports  直接赋值代替对  module.exports  赋值。 exports  实际上只是一个和  module.exports  指向同一个对象的变量， 它本身会在模块执行结束后释放，但  module 不会，因此只能通过指定  module.exports  来改变访问接口。
+
+## 创建包
+
+‘这一节我觉得真的没什么好说的，就直接copy书上的话过来了’
+模块与文件是一一对应的。文件不仅可以是 JavaScript  代码或二进制代码，还可以是一个文件夹。最简单的包，就是一个作为文件夹的模块。下面我们来看一个例子，建立一个叫做 somepackage  的文件夹，在其中创建 index.js ，内容如下： 
+//somepackage/index.js 
+
+```javascript
+exports.hello = function() {
+    console.log('hello');
+}
+```
+
+然后在  somepackage  之外建立 getpackage.js ，内容如下： 
+//getpackage.js 
+
+```javascript
+var somePackage = require('./somepackage');
+somePackage.hello();
+```
+
+我们使用这种方法可以把文件夹封装为一个模块，即所谓的包。包通常是一些模块的集合，在模块的基础上提供了更高层的抽象，相当于提供了一些固定接口的函数库。通过定制package.json，我们可以创建更复杂、更完善、更符合规范的包用于发布。 
+
+## 包的发布
+npm 可以非常方便地发布一个包，比 pip 、gem 、pear  要简单得多。在发布之前，首先需要让我们的包符合 npm 的规范，npm 有一套以 CommonJS 为基础包规范，但与 CommonJS并不完全一致，其主要差别在于必填字段的不同。
+通过使用 npm init 可以根据交互式问答产生一个符合标准的 package.json，例如创建一个名为 byvoidmodule 的目录，然后在这个目录中运行npm init ： 
+
+这样就在 byvoidmodule  目录中生成一个符合 npm  规范的 package.json  文件。创建一个 index.js  作为包的接口，一个简单的包就制作完成了。 在发布前，我们还需要获得一个账号用于今后维护自己的包，使用  npm adduser  根据提示输入用户名、密码、箱，等待账号创建完成。完成后可以使用  npm whoami 测验是
+否已经取得了账号。 
+接下来，在 package.json  所在目录下运行 npm publish ，稍等片刻就可以完成发布了。打开浏览器，访问 http://search.npmjs.org/  就可以找到自己刚刚发布的包了。现在我们可以在世界的任意一台计算机上使用 npm install byvoidmodule 命令来安装它。
+如果你的包将来有更新，只需要在 package.json  文件中修改  version  字段，然后重新使用 npm publish   命令就行了。如果你对已发布的包不满意（比如我们发布的这个毫无意义的包），可以使用  npm unpublish   命令来取消发布。 
+
+# Node.js的调试
+
+![这里写图片描述](http://img.blog.csdn.net/20170109112436638?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)

@@ -1,0 +1,320 @@
+---
+layout: post
+title:  "Node.js（一）——核心模块"
+date:   2016-12-01 11:02:01 -0500
+comments: true
+categories: node javascript
+---
+
+最近感冒了，晕乎乎了，好像完不成一个星期看完一本书的任务，这本薄薄的《NodeJS开发指南》已经看得超时了。现在看到核心模块，希望尽快看完吧，在这周之前。
+今天想折腾微信小程序，但是发现需要企业组织机构号，一脸萌逼。。。算了，暂时就不学了。
+然后莫名其妙申请了一个阿里云DNS服务，什么鬼，还花了好几块钱。
+碎碎念，好久没有在图书馆学习了。现在开始写这篇文章吧，估计会很草率，原谅现在头晕乎乎的我。
+＃全局对象和全局变量
+说一下javascript里面很特殊的一个东西，全局对象global；
+JavaScript 中有一个特殊的对象,称为全局对象(Global Object),它及其所有属性都可 以在程序的任何地方访问,即全局变量。
+**在浏览器 JavaScript 中,通常 window 是全局对象,**
+** 而 Node.js 中的全局对象是 global,所有全局变量(除了 global 本身以外)都是 global 对象的属性。**
+
+另外值得注意的是，我们在node里面声明的变量都不是全局全局变量
+当你定义一个全局变量时,这个变量同时也会成为全局对象的属性,反之亦然。需要注意的是,在 Node.js 中你不可能在最外层定义变量,因为所有用户代码都是**属于当前模块的, 而模块本身不是最外层上下文。**
+
+更重要的是声明一个变量，一定要注意要用var ，防止污染全局变量；
+
+
+
+# process模块
+
+process.argv是命令行参数数组,第一个元素是 node,第二个元素是脚本文件名,
+
+
+## process.stdout
+process.stdout是标准输出流,通常我们使用的 console.log() 向标准输出打印 字符,而 process.stdout.write() 函数提供了更底层的接口。
+
+## process.stdin
+process.stdin是标准输入流,初始时它是被暂停的,要想从标准输入读取数据, 你必须恢复流,并手动编写流的事件响应函数。
+
+```
+process.stdin.resume();//恢复输入
+process.stdin.on('data',function (data) {
+    // body...
+    process.stdout.write('read from console'+data.toString())
+})
+```
+
+## process.nextTick
+process.nextTick(callback)的功能是为事件循环设置一项任务,Node.js 会在 下次事件循环调响应时调用 callback。
+初学者很可能不理解这个函数的作用,有什么任务不能在当下执行完,需要交给下次事件循环响应来做呢?我们讨论过,Node.js 适合 I/O 密集型的应用,而不是计算密集型的应用, 因为一个 Node.js 进程只有一个线程,因此在任何时刻都只有一个事件在执行。如果这个事 件占用大量的 CPU 时间,执行事件循环中的下一个事件就需要等待很久,因此 Node.js 的一 个编程原则就是尽量缩短每个事件的执行时间。process.nextTick() 提供了一个这样的 工具,可以把复杂的工作拆散,变成一个个较小的事件。
+从第三个元素开始每个元素是一个运行参数。
+
+# util模块
+util.inherits(constructor, superConstructor)是一个实现对象间原型继承的函数。
+
+注意,Sub 仅仅继承了 Base 在原型中定义的函数,而构造函数内部创造的 base 属 性和 sayHello 函数都没有被 Sub 继承。同时,在原型中定义的属性不会被 console.log 作 为对象的属性输出。
+demo1.js
+
+```javascript
+var util = require('util');
+
+function Base(argument) {
+    // body...
+    this.name = 'base';
+    this.base = '1991';
+    this.sayHello = function() {
+        console.log('Hello ' + this.name);
+    };
+}
+Base.prototype.showName = function() {
+    console.log(this.name);
+}
+
+function Sub() {
+    this.name = 'sub';
+}
+util.inherits(Sub, Base); //实现对象间的继承  Sub继承了Base
+
+var objBase = new Base();
+objBase.showName();//hello
+objBase.sayHello();//hello base
+console.log(objBase);
+
+var objSub = new Sub();
+objSub.showName();  //sub
+// objSub.sayHello(); 
+//sayHello() is not Function util不能继承内部属性，只能继承prototype的方法
+console.log(objSub);
+
+```
+
+## util.inspect
+util.inspect(object,[showHidden],[depth],[colors])是一个将任意对象转换 为字符串的方法,通常用于调试和错误输出。它至少接受一个参数 object,即要转换的对象。
+
+```javascript
+/*util.inspect*/
+var util = require('util');
+
+function Person() {
+    this.name = 'daisy';
+    this.toString = function() {
+        return this.name;
+    };
+}
+var obj = new Person();
+console.log(util.inspect(obj)); 
+console.log(util.inspect(obj, true));//showHidden＝true 输出更多信息
+```
+
+![这里写图片描述](http://img.blog.csdn.net/20170109195728449?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+＃事件驱动模块events
+我觉得这个就可以不写了，因为第一节讲的时候就提到了node是基于事件机制
+## 事件发生器
+
+events 模块只提供了一个对象: events.EventEmitter。
+
+- 注册监听器
+
+```javascript
+EventEmitter.on(event, listener) 为指定事件注册一个监听器,接受一个字
+符串event 和一个回调函数listener。
+```
+
+- 发射事件
+
+```javascript
+EventEmitter.emit(event, [arg1], [arg2], [...]) 发射 event 事件,传
+递若干可选参数到事件监听器的参数表。
+```
+
+- 注册一个单次监听器
+
+```javascript
+EventEmitter.once(event, listener) 为指定事件注册一个单次监听器,即
+监听器最多只会触发一次,触发后立刻解除该监听器。
+```
+- 移除指定事件的监听器
+
+```javascript
+EventEmitter.removeListener(event, listener) 移除指定事件的某个监听
+器,listener 必须是该事件已经注册过的监听器。
+```
+
+- 移除指定事件的所有监听器
+
+```javascript
+EventEmitter.removeAllListeners([event]) 移除所有事件的所有监听器, 如果指定 event,则移除指定事件的所有监听器。
+```
+
+
+示例
+
+```javascript
+/*event.js*/
+var events = require('events');
+var emitter = new events.EventEmitter();
+/*两个事件监听器，监听事件someEvent*/
+emitter.on('someEvent', function(arg1, arg2) {
+    console.log('listener1', arg1, arg2);
+});
+emitter.on('someEvent', function(arg1, arg2) {
+    console.log('listener2', arg1, arg2);
+});
+
+emitter.emit('someEvent', 'daisy', 1993);//发射事件 ，daisy和1993是参数
+```
+
+大多数时候我们不会直接使用 EventEmitter,而是在对象中继承它。
+包括 fs、net、 http 在内的,只要是支持事件响应的核心模块都是 EventEmitter 的子类。
+为什么要这样做呢?原因有两点。首先,具有某个实体功能的对象实现事件符合语义, 事件的监听和发射应该是一个对象的方法。其次 JavaScript 的对象机制是基于原型的,支持 部分多重继承,继承 EventEmitter 不会打乱对象原有的继承关系。
+
+# 文件系统fs
+## fs.readFile
+fs.readFile(filename,[encoding],[callback(err,data)])
+fiename:文件名
+encoding：编码方式
+callback(err,data)：回调函数
+
+1、不指定编码方式，默认以
+
+```javascript
+fs.readFile('content.txt', function(err, data) { if (err) {
+console.error(err); } else {
+        console.log(data);
+      }
+});
+```
+
+这个程序以二进制的模式读取了文件的内容,data 的值是 Buffer 对象。
+输出：
+
+```javascript
+<Buffer 54 65 78 74 20 e6 96 87 e6 9c ac e6 96 87 e4 bb b6 e7 a4 ba e4 be 8b>
+```
+
+2、指定编码方式
+
+指定utf-8编码方式
+
+```javascript
+ var fs = require('fs');
+    fs.readFile('content.txt', 'utf-8', function(err, data) {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(data);
+      }
+});
+```
+
+输出：
+
+```
+Text 文本文件示例
+```
+
+## fs.readFileSync(filename, [encoding])
+
+fs.readFileSync(filename, [encoding])是 fs.readFile 同步的版本。
+没有callback，因为是同步读取方式；
+
+如果有错 误发生,fs 将会抛出异常,你需要使用 try 和 catch 捕捉并处理异常。
+
+## fs.open
+
+fs.open(path, flags, [mode], [callback(err, fd)])是 POSIX open 函数的 封装,与 C 语言标准库中的 fopen 函数类似。它接受两个必选参数,path 为文件的路径, flags 可以是以下值。
+
+- r :以读取模式打开文件。
+- r+ :以读写模式打开文件。
+- w :以写入模式打开文件,如果文件不存在则创建。
+- w+ :以读写模式打开文件,如果文件不存在则创建。 a :以追加模式打开文件,如果文件不存在则创建。
+- a+ :以读取追加模式打开文件,如果文件不存在则创建。
+
+## fs.read
+
+fs.read(fd, buffer, offset, length, position, [callback(err, bytesRead, buffer)])是 POSIX read 函数的封装,相比 fs.readFile 提供了更底层的接口。
+
+fs还有很多很多方法。。。
+
+# HTTP服务器和客户端
+
+## HTTP Server
+
+HTTP Server提供了以下几种事件：
+
+ - request:当客户端请求到来时,该事件被触发,提供两个参数 req 和res,分别是 http.ServerRequest和http.ServerResponse 的实例,表示请求和响应信息。
+ - connection: 当 TCP 连接建立时,该事件被触发,提供一个参数 socket,为 net.Socket 的实例。connection 事件的粒度要大于 request,因为客户端在 Keep-Alive 模式下可能会在同一个连接内发送多次请求。
+ - close:当服务器关闭时,该事件被触发。注意不是在用户连接断开时。
+
+1、 http.ServerRequest
+前面说到request事件是当客户端到来时，提供的事件监听。该事件提供两个参数：req和res
+req就是http.ServerRequest
+HTTP的请求一般包含请求头（Header）和请求体（Body），具体不懂可以看我写的关于HTTP部分；
+因此http.ServerRequest就有三种事件：
+
+- data :当请求体数据到来时,该事件被触发。该事件提供一个参数 chunk,表示接 收到的数据。如果该事件没有被监听,那么请求体将会被抛弃。该事件可能会被调 用多次。
+- end :当请求体数据传输完成时,该事件被触发,此后将不会再有数据到来。
+- close: 用户当前请求结束时,该事件被触发。不同于 end,如果用户强制终止了
+传输,也还是调用close。
+
+![这里写图片描述](http://img.blog.csdn.net/20170109202550695?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+en?body怎么获取的呢？
+
+3、获取GET请求内容
+Nodejs没有PHP语言的$_GET
+由于 GET 请求直接被嵌入在路径 中,URL是完整的请求路径,包括了 ? 后面的部分,因此你可以手动解析后面的内容作为 GET 请求的参数。
+Node.js 的 url 模块中的 parse 函数提供了这个功能,例如:
+
+```javascript
+/*httpServer test*/
+var http = require('http');
+var url = require('url');
+var util = require('util');
+http.createServer(function(req, res) {
+    // body...
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    // res.end(util.inspect(req.url));
+    //'/?name=daisyHawen&age=17'
+
+    res.end(util.inspect(url.parse(req.url, true)));//
+}).listen(3000)
+```
+
+在浏览器输入
+http://127.0.0.1:3000/?name=daisyHawen&age=17
+
+用了url.parse，好厉害
+
+![这里写图片描述](http://img.blog.csdn.net/20170109203630986?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+通过 url.parse1,原始的 path 被解析为一个对象,其中 query 就是我们所谓的 GET 请求的内容,而路径则是 pathname。
+
+4、获取POST请求内容
+相比 GET 请求把所有的内容编码到访问路径中,POST 请求的内容全部都在请求体中。
+**http.ServerRequest 并没有一个属性内容为请求体,原因是等待请求体传输可能是一件 耗时的工作,譬如上传文件。**——解释了我刚刚的问题，为什么没有body属性
+
+所以 Node.js 默认是不会解析请求体的,当你需要的时候, 需要手动来做。让我们看看实现方法:
+
+```javascript
+var http = require('http');
+var querystring = require('querystring');//和GET不同的是用querystring
+var util = require('util');
+
+http.createServer(function(req, res) {
+    var post = '';
+    req.on('data', function(chunk) {
+        post += chunk;
+    });
+    console.log(post); //这里必然会空，因为on事件是异步的，先执行该语句
+    req.on('end', function() {
+        post = querystring.parse(post); //通过querystring.parse解析post语句
+        console.log(post)
+        // console.log('parse:'+post);
+        res.end(util.inspect(post));
+    });
+}).listen(3000);
+```
+
+![这里写图片描述](http://img.blog.csdn.net/20170109205436933?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+![这里写图片描述](http://img.blog.csdn.net/20170109205732750?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+第一句是querystring解析前
+第二句是queryString解析后，解析完的语句是一个对象；

@@ -6,7 +6,8 @@ baseurl: "" # the subpath of your site, e.g. /blog
 
 # Sidebar settings
 description: 灵魂和身体都需要奔跑
-
+#pagin
+paginate: 5
 # Social icons
 facebook: daisyHawen
 linkedin: daisyHawen
