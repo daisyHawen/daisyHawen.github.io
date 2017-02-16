@@ -17,6 +17,19 @@ layout: default
     <div class="post-content" itemprop="articleBody">
         {{ content }}
     </div>
+    <!-- 多说评论框 start -->
+<div id="ds-thread" class="ds-thread" data-url="{{ page.url }}" data-title="{{ page.title }}" data-thread-key="{{ page.title }}"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name: '{{ site.JB.comments.duoshuo.short_name }}'};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+    <!-- 多说公共JS代码 end -->
     <!-- To enable Disqus comments, comment out this code and insert your Disqus shortname -->
     <!-- {% if page.comments %}
     <div id="disqus_thread"></div>
@@ -37,4 +50,5 @@ layout: default
       <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
   {% endif %} -->
 </article>
+
 
