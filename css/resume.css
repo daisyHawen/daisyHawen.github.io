@@ -2,9 +2,10 @@
     width: 55%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 100px;
+    margin-top: 50px;
     text-align: center;
 }
+
 #job{
 	width:200px;
 	position: relative;
@@ -27,15 +28,36 @@
 }
 h2{
 	text-align: left;
-	font-size: 16px;
+	font-size: 20px;
 }
 h3{
 	text-align: left;
-	height: 50px;
 	font-size: 16px;
-	line-height: 50px;
 }
 
-.skill,.award,.project,.education{
+.skill,.award,.project,.education,.other{
 	text-align: left;
+}
+.skill hr,.award hr,.project hr,.education hr,.other hr{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	border-top:1px solid #666;
+}
+.education .year,.project .year,.skill .year{
+	display: inline-block;
+	position: relative;
+	float: right;
+}
+.year{
+	float: right;
+}
+.education .degree{
+	font-style: oblique;
+}
+.skill ul,.award ul,.project ul,.education ul,.other ul{
+	margin-left: 50px;
+}
+.skill li{
+	width: 49%;
+	display: inline-block;
 }
