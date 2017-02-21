@@ -11,8 +11,41 @@ layout: default
         {% endfor %}
     </div>
 </div>
-
+<!-- 遍历分页后的文章 -->
 <div class="post-container">
+  {% for post in paginator.posts %}
+  <h1><a href="{{ post.url }}">{{ post.title }}</a></h1>
+  <p class="author">
+    <span class="date">{{ post.date }}</span>
+  </p>
+  <!-- <div class="content">
+    {{ post.content }}
+  </div> -->
+{% endfor %}
+</div>
+<!-- 分页链接 -->
+<div class="pagination">
+  {% if paginator.previous_page %}
+    {% if paginator.previous_page == 1 %} 
+    <a href="{{site.baseurl}}/blog" class="previous">Previous</a>
+    {% else %}
+    <a href="{{site.baseurl}}/blog/page{{ paginator.previous_page }}" class="previous">Previous</a>
+{% endif %}
+
+  {% else %}
+    <span class="previous">Previous</span>
+  {% endif %}
+  <span class="page_number ">Page: {{ paginator.page }} of {{ paginator.total_pages }}</span>
+  {% if paginator.next_page %}
+    <a href="{{site.baseurl}}/blog/page{{ paginator.next_page }}" class="next">Next</a>
+  {% else %}
+    <span class="next ">Next</span>
+  {% endif %}
+</div>
+
+
+
+<!-- <div class="post-container">
     <hr> {% for post in site.posts %}
     <div class="post-preview">
         <span class="post-title">
@@ -26,7 +59,7 @@ layout: default
     </div>
     {% endfor %}
 </div>
-
+ -->
 <style>
   .block{
     display: inline-block;
