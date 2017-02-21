@@ -22,18 +22,21 @@ nav li{
 	list-style: none;
 	text-align: center;
 	width: 200px;
+    border-bottom: 3px solid #fff;
+
 }
 nav li:hover{
 	border-bottom: 3px solid orange;
 }
 	.img{
 		width: 350px;
-		height: 400px;
+		/*height: 350px;*/
 		display: inline-block;
 		text-align: center;
 		margin: 5px;
 		border: 1px solid #ccc;
 		position: relative;
+        transition: 1s;
 	}
 	.img img{
 		display: inline-block;
@@ -42,8 +45,16 @@ nav li:hover{
 		/*width: 80%;*/
 		/*height: 80%;*/
 	}
+    /*.img:hover{
+        width: 1000px;
+        position: absolute;
+        top:20%;
+        left: 20%;
+        z-index: 100;
+    }*/
 	.img .img-info{
-		height:20px;
+		height:50px;
+        line-height: 50px;
 		border-top:1px dotted #ccc;
 		width: 88%;
 		margin-top: 10px;
@@ -71,7 +82,12 @@ var getImgs = function() {
 
                 $.each(imgs.photos.photo, function(i, v) {
 
-                    var temp = "https://farm" + v.farm + ".staticflickr.com/" + v.server + "/" + v.id + "_" + v.secret + ".jpg";
+                    var imgurl = "https://farm" + v.farm + ".staticflickr.com/" + v.server + "/" + v.id + "_" + v.secret + ".jpg";
+                    var temp={
+                        "url":imgurl,
+                        "title":v.title
+                    }
+                    // temp.url=imgurl;
                     // var imgDom = document.getElementById('img');
                     // var newImg = document.createElement("img");
                     // $(newImg).attr("src", temp);
@@ -115,13 +131,14 @@ console.log(img_url);
 
 var insertDoc = function(imgs) {
     var imgDom = document.getElementById('img');
-    $.each(imgs, function(i, url) {
+    $.each(imgs, function(i, img) {
        
             var imgDiv = document.createElement("div");
             var newImg = document.createElement("img");
             var infoDiv = document.createElement("div")
-            $(infoDiv).innerHTML = "info:暂时还没有说明";
-            $(newImg).attr("src", url);
+            $(infoDiv).text(img.title);
+            $(infoDiv).attr('class','img-info');
+            $(newImg).attr("src", img.url);
             $(imgDiv).attr("class", "img");
             imgDiv.append(newImg);
             imgDiv.append(infoDiv);

@@ -13,7 +13,7 @@
 		var html = '<a href="https://daisyhawen.github.io/React-gallery">react实现图片画廊</a>';
 		html += '<br><a href="https://daisyhawen.github.io/html5-canvas-clock/">HTML5-实现倒计时效果</a>';
 		console.log(html);
-		flickr.innerHTML = html;
+		// flickr.innerHTML = html;
 
 	}
 	ProjectShow.prototype = {
