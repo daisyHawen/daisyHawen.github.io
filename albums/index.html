@@ -14,12 +14,17 @@ layout: blank
   
     </div>
     <div class="img-preview">
+    
         <!-- <div class="backgroud"></div> -->
     </div>
+    <div class="mask"></div>
 </article>
 
 
 <style type="text/css">
+article{
+    position: relative;
+}
 nav li{
 	display: inline-block;
 	list-style: none;
@@ -32,7 +37,7 @@ nav li:hover{
 	border-bottom: 3px solid orange;
 }
 	.img{
-		width: 350px;
+		min-width: 365px;
 		/*height: 350px;*/
 		display: inline-block;
 		text-align: center;
@@ -44,6 +49,7 @@ nav li:hover{
 	.img img{
 		display: inline-block;
 		padding-top: 5px;
+        height: 250px;
 		/*margin:5px auto;*/
 		/*width: 80%;*/
 		/*height: 80%;*/
@@ -69,11 +75,25 @@ nav li:hover{
         /*left: 20%;*/
         top:20%;
         width: 100%;
+        z-index: 100;
 
     }
+    .mask{
+        display: none;
+        position: absolute;
+        width: 100%;
+        top:-50px;
+        height:120%;
+        background: rgba(80,80,80,0.5);
+
+        /*z-index: 1;*/
+    }
+    .img-preview img{
+        height: 520px;
+    }
     .img-preview .img{
-        width: 80%;
-        background: #ccc;
+        width:100%;
+        /*background: #fff;*/
     }
 </style>
 <script src="https://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -155,15 +175,35 @@ var insertDoc = function(imgs) {
 getImgs();
 insertDoc(img_url);
 
-$('.img').hover(function(e){
+$('.img').click(function(e){
     console.log(e);
     console.log($(this));
     var newDom=$(this).clone();
     $('.img-preview').empty();
     var pageY=e.pageY;
-    console.log(pageY);
-    $('.img-preview').css('top',e.pageY )
+    var scrolly=window.scrollY+80;
+    // console.log(pageY);
+    //设置遮罩
+    var maskDiv = document.createElement("div");
+    $(maskDiv).attr('class','mask');
+    var clientWidth=document.body.clientWidth;
+    var clientHeight=document.body.clientHeight;
+    var left=$('.container').width()-$('.container').outerWidth( true );
+    // $('.mask').css('top',window.scrollY).css('height',clientHeight).css('width',clientWidth);
+    $('.mask').css('display','block')
+    // $('.mask').css('top',window.scrollY)
+    $('.mask').css('width',clientWidth)
+    $('.mask').css('left',left/2)
+
+    $('.img-preview').css('top',scrolly )
     $('.img-preview').append(newDom);
+    $('.img-preview').append(maskDiv);
+
+
+})
+$('.mask').click(function(e){
+    $('.mask').css('display','none')
+    $('.img-preview').empty();
 
 })
 // var insertDoc={
