@@ -4,107 +4,120 @@ layout: blank
 <article>
     <h1>我的个人相册——From FLickr</h1>
     <nav>
-    	<ul>
-    		<li>2016</li>
-    		<li>2015</li>
-    		<li>2014</li>
-    	</ul>
+        <ul class="nav">
+            <li class="active">all</li>
+            <li>2016</li>
+            <li>2015</li>
+            <li>2014</li>
+        </ul>
     </nav>
     <div class="img-container" id="img">
-  
     </div>
     <div class="img-preview">
-    
         <!-- <div class="backgroud"></div> -->
     </div>
     <div class="mask"></div>
 </article>
-
-
 <style type="text/css">
-article{
+article {
     position: relative;
-    
 }
-body{
+
+body {
     background: #F3F5F6;
 }
-nav li{
-	display: inline-block;
-	list-style: none;
-	text-align: center;
-	width: 200px;
-    border-bottom: 3px solid #fff;
 
+.nav li {
+    display: inline-block;
+    list-style: none;
+    text-align: center;
+    width: 200px;
+    border-bottom: 3px solid #fff;
 }
-nav li:hover{
-	border-bottom: 3px solid orange;
+
+nav li.active {
+    border-bottom: 3px solid orange;
+    /*background: orange;*/
 }
-	.img{
-		min-width: 365px;
-		/*height: 350px;*/
-		display: inline-block;
-		text-align: center;
-		margin: 5px;
-		border: 1px solid #ccc;
-		position: relative;
-        transition: 1s;
-        background: #fff;
-	}
-	.img img{
-		display: inline-block;
-		padding-top: 5px;
-        height: 250px;
-		/*margin:5px auto;*/
-		/*width: 80%;*/
-		/*height: 80%;*/
-	}
-    /*.img:hover{
+
+nav li:hover {
+    /*background: orange;*/
+    border-bottom: 3px solid orange;
+}
+
+.img {
+    min-width: 365px;
+    /*height: 350px;*/
+    display: inline-block;
+    text-align: center;
+    margin: 5px;
+    border: 1px solid #ccc;
+    position: relative;
+    transition: 1s;
+    background: #fff;
+}
+
+.img img {
+    display: inline-block;
+    padding-top: 5px;
+    height: 250px;
+    /*margin:5px auto;*/
+    /*width: 80%;*/
+    /*height: 80%;*/
+}
+
+
+/*.img:hover{
         width: 1000px;
         position: absolute;
         top:20%;
         left: 20%;
         z-index: 100;
     }*/
-	.img .img-info{
-		height:50px;
-        line-height: 50px;
-		border-top:1px dotted #ccc;
-		width: 88%;
-		margin-top: 10px;
-		margin-left: auto;
-		margin-right: auto;
-	}
-    .img-preview{
-        position: absolute;
-        /*left: 20%;*/
-        top:20%;
-        width: 100%;
-        z-index: 100;
 
-    }
-    .mask{
-        display: none;
-        position: absolute;
-        width: 100%;
-        top:-50px;
-        height:120%;
-        background: rgba(80,80,80,0.5);
+.img .img-info {
+    height: 50px;
+    line-height: 50px;
+    border-top: 1px dotted #ccc;
+    width: 88%;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-        /*z-index: 1;*/
-    }
-    .img-preview img{
-        height: 520px;
-    }
-    .img-preview .img{
-        width:100%;
-        /*background: #fff;*/
-    }
+.img-preview {
+    position: absolute;
+    /*left: 20%;*/
+    top: 20%;
+    width: 100%;
+    z-index: 100;
+}
+
+.mask {
+    display: none;
+    position: absolute;
+    width: 100%;
+    top: -50px;
+    height: 120%;
+    background: rgba(80, 80, 80, 0.5);
+    /*z-index: 1;*/
+}
+
+.img-preview img {
+    height: 520px;
+}
+
+.img-preview .img {
+    width: 100%;
+    /*background: #fff;*/
+}
 </style>
 <script src="https://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="{{site.baseURL}}/js/flickr.js"></script> -->
 <script type="text/javascript">
 //获取flickr的照片
 var img_url = [];
+
 var getImgs = function() {
     // var img_url = [];
     var url = "https://api.flickr.com/services/rest/?method=flickr.people.getPublicPhotos&api_key=56a8221a406f0c4f150601ed15512173&user_id=146067095@N06&format=json";　　
@@ -122,9 +135,11 @@ var getImgs = function() {
                 $.each(imgs.photos.photo, function(i, v) {
 
                     var imgurl = "https://farm" + v.farm + ".staticflickr.com/" + v.server + "/" + v.id + "_" + v.secret + ".jpg";
-                    var temp={
-                        "url":imgurl,
-                        "title":v.title
+                    var temp = {
+                        "url": imgurl,
+                        "title": v.title,
+                        "farm": v.farm,
+                        "id": v.id
                     }
                     img_url.push(temp);
                 })
@@ -159,62 +174,120 @@ var getImgs = function() {
     });
 }
 
+var getDates = function(imgs) {
+    //查询每一张图片的时间
+    $.each(imgs, function(i, img) {
+        var url = "https://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=56a8221a406f0c4f150601ed15512173&photo_id=" + img.id + "&format=json";
+        $.ajax(url)
+            .done(function() {
+                console.log(url + "done");
+                var imgInfo = JSON.parse(result.slice(14, -1));
+                console.log(imgInfo);
+            }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+
+                if (XMLHttpRequest.readyState == "4") {
+                    var result = XMLHttpRequest.responseText;
+                    var imgInfo = JSON.parse(result.slice(14, -1));
+                    // console.log(imgInfo);
+                    var dates = imgInfo.photo.dates.taken;
+                    img.dates = dates;
+                    img.desc = imgInfo.photo.description;
+                    img.tags = imgInfo.photo.tags.tag;
+                    console.log(dates.slice(0, 3));
+                }
+                // console.log(url + "fail")
+            });　　
+    })
+}
 
 // console.log(img_url);
 
-var insertDoc = function(imgs) {
+var insertDoc = function(imgs, date) {
     var imgDom = document.getElementById('img');
+    $('#img').empty();
+
     $.each(imgs, function(i, img) {
+        if (date) {
+            var year = img.dates.slice(0, 4);
+            // console.log(year);
+            if (year == date) {
+                var imgDiv = document.createElement("div");
+                var newImg = document.createElement("img");
+                var infoDiv = document.createElement("div")
+                $(infoDiv).text(img.title);
+                $(infoDiv).attr('class', 'img-info');
+                $(newImg).attr("src", img.url);
+                $(imgDiv).attr("class", "img");
+                imgDiv.append(newImg);
+                imgDiv.append(infoDiv);
+                imgDom.append(imgDiv);
+            }
+        } else {
             var imgDiv = document.createElement("div");
             var newImg = document.createElement("img");
             var infoDiv = document.createElement("div")
             $(infoDiv).text(img.title);
-            $(infoDiv).attr('class','img-info');
+            $(infoDiv).attr('class', 'img-info');
             $(newImg).attr("src", img.url);
             $(imgDiv).attr("class", "img");
             imgDiv.append(newImg);
             imgDiv.append(infoDiv);
             imgDom.append(imgDiv);
+        }
+
     })
 }
 getImgs();
+// getGroups();
 insertDoc(img_url);
+getDates(img_url);
 
-$('.img').click(function(e){
-    console.log(e);
-    console.log($(this));
-    var newDom=$(this).clone();
+$('.img').click(function(e) {
+
+    var newDom = $(this).clone();
     $('.img-preview').empty();
-    var pageY=e.pageY;
-    var scrolly=window.scrollY+80;
-    // console.log(pageY);
+    var pageY = e.pageY;
+    var scrolly = window.scrollY + 80;
+
     //设置遮罩
     var maskDiv = document.createElement("div");
-    $(maskDiv).attr('class','mask');
-    var clientWidth=document.body.clientWidth;
-    var clientHeight=document.body.clientHeight;
-    var left=$('.container').width()-$('.container').outerWidth( true );
-    // $('.mask').css('top',window.scrollY).css('height',clientHeight).css('width',clientWidth);
-    $('.mask').css('display','block')
-    // $('.mask').css('top',window.scrollY)
-    $('.mask').css('width',clientWidth)
-    $('.mask').css('left',left/2)
+    $(maskDiv).attr('class', 'mask');
+    var clientWidth = document.body.clientWidth;
+    var clientHeight = document.body.clientHeight;
+    var left = $('.container').width() - $('.container').outerWidth(true);
 
-    $('.img-preview').css('top',scrolly )
+    $('.mask').css('display', 'block')
+    $('.mask').css('width', clientWidth)
+    $('.mask').css('left', left / 2)
+
+    $('.img-preview').css('top', scrolly)
     $('.img-preview').append(newDom);
     $('.img-preview').append(maskDiv);
 
 
 })
-$('.mask').click(function(e){
-    $('.mask').css('display','none')
+$('.mask').click(function(e) {
+    $('.mask').css('display', 'none')
     $('.img-preview').empty();
 
 })
-// var insertDoc={
-// 	//采用简单的瀑布流的插入思想
+$('.nav li').click(function(e) {
+        var text = $(this).text();
+        console.log(text);
+        if(text=='all'){
+        insertDoc(img_url);
 
-// 	waterfall:function(parent,box){
+        }else{
+        insertDoc(img_url,text);
+
+        }
+        $('.active').attr('class',"");
+        $(this).addClass('active');
+    })
+    // var insertDoc={
+    //  //采用简单的瀑布流的插入思想
+
+//  waterfall:function(parent,box){
 //     var oParent=document.getElementById(parent);
 //     var oBox=getByClass(oParent,box);
 //     var oBoxw=oBox[0].offsetWidth;
@@ -240,6 +313,6 @@ $('.mask').click(function(e){
 //         }
 //     }
 //     console.log(hArr);
-// 	}
+//  }
 // }
 </script>
