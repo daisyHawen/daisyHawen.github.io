@@ -8,7 +8,9 @@ layout: blank
             <li><i class="fa fa-envelope" aria-hidden="true"></i> daisy_xinglove@163.com</li>
             <li><i class="fa fa-phone" aria-hidden="true"></i> MTgyODAzMTIwMjQ=</li>
             <li><i class="fa fa-github" aria-hidden="true"></i> <a href="daisyhawen.github.io">daisyHawen</a></li>
+
         </ul>
+        <img class="cv" src="img/cv.jpg">
     </section>
     <section class="education">
         <h2><i class="fa fa-graduation-cap" aria-hidden="true"></i> 教育背景</h2>
@@ -106,6 +108,7 @@ layout: blank
         <div>
             <li>奖学金：本科四年至研究生全获（一、二、三等 不等）</li>
             <li>电子科技大学优秀毕业生</li>
+            <li>论文：Chen A, Xing H, She K, et al. A Dynamic Risk-Based Access Control Model for Cloud Computing[C]//Big Data and Cloud Computing (BDCloud), Social Computing and Networking (SocialCom), Sustainable Computing and Communications (SustainCom)(BDCloud-SocialCom-SustainCom), 2016 IEEE International Conferences on. IEEE, 2016: 579-584.</li>
         </div>
     </section>
     <section class="other">
@@ -125,7 +128,15 @@ layout: blank
 
 <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
 <link rel="stylesheet" href="{{ site.baseurl }}/css/resume.css">
-
+<script type="text/javascript">
+    var innerwidth=$('.container').width();
+    var outerwidth=$('.container').outerWidth(true);
+    console.log(innerwidth);
+    console.log(outerwidth);
+    var width=(outerwidth-innerwidth)/2+120;
+    console.log(width);
+    $('.cv').css('right',width+'px');
+</script>
 
 <style>
 

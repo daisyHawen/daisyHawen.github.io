@@ -8,6 +8,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 description: 灵魂和身体都需要奔跑
 
 gems: [jekyll-paginate]
+
 paginate: 5
 paginate_path: "blog/page:num"
 

@@ -61,3 +61,10 @@ h3{
 	width: 49%;
 	display: inline-block;
 }
+.cv{
+	width:100px;
+	position: absolute;
+	float: right;
+	top:10px;
+	/*:0px;*/
+}
