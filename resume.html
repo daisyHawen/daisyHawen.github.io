@@ -2,7 +2,15 @@
 layout: blank 
 ---
 <article class="content">
-    <h1>邢瀚文 </h1><span id="job">(求职意向：前端工程师)</span>
+    <h1 class="myname">邢瀚文 </h1><span id="job">(求职意向：前端工程师)</span>
+    <div class="color-set">
+        <a class="icon icon-default"><i class="fa fa-circle" aria-hidden="true"></i></a>
+        <a class="icon icon-blue"><i class="fa fa-circle" aria-hidden="true"></i></a>
+        <a class="icon icon-red"><i class="fa fa-circle" aria-hidden="true"></i></a>
+        <a class="icon icon-green"><i class="fa fa-circle" aria-hidden="true"></i></a>
+        <!-- <a href=""><i class="fa fa-circle" aria-hidden="true"></i></a> -->
+
+    </div>
     <section class="contact">
         <ul>
             <li><i class="fa fa-envelope" aria-hidden="true"></i> daisy_xinglove@163.com</li>
@@ -131,11 +139,54 @@ layout: blank
 <script type="text/javascript">
     var innerwidth=$('.container').width();
     var outerwidth=$('.container').outerWidth(true);
-    console.log(innerwidth);
-    console.log(outerwidth);
+    // console.log(innerwidth);
+    // console.log(outerwidth);
     var width=(outerwidth-innerwidth)/2+120;
-    console.log(width);
+    // console.log(width);
+    var color={
+        blue:'#2f79bb',
+        green:'seagreen',
+        red:'indianred',
+        default:'#333'
+    }
     $('.cv').css('right',width+'px');
+    var inName=false;
+    $('.myname').click(function(e){
+        if(!inName){
+            $('.color-set').css('display',"block")
+            inName=true
+        }else{
+            $('.color-set').css('display',"none")
+            inName=false
+        }
+        
+    })
+    $('.icon').click(function (e) {
+        // body...
+        console.log(e.target);
+        console.log(this);
+        var className=this.className;
+        var iconcolor=className.slice(10)
+        switch(iconcolor) {
+            case 'default':
+                $('.skill hr,.award hr,.project hr,.education hr,.other hr').css('border-top','1px solid '+color.default);
+                $('.content h2').css('color',color.default)
+                break;
+            case 'blue':
+                $('.skill hr,.award hr,.project hr,.education hr,.other hr').css('border-top','1px solid '+color.blue);
+                $('.content h2').css('color',color.blue)
+                break;
+            case 'red':
+                $('.skill hr,.award hr,.project hr,.education hr,.other hr').css('border-top','1px solid '+color.red);
+                $('.content h2').css('color',color.red)
+                break;
+            case 'green':
+                $('.skill hr,.award hr,.project hr,.education hr,.other hr').css('border-top','1px solid '+color.green);
+                $('.content h2').css('color',color.green)
+                break;
+        }
+
+    })
 </script>
 
 <style>
