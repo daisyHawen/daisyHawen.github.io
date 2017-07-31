@@ -1,0 +1,200 @@
+---
+layout: post
+title:  "js之对象"
+date:   2017-07-31 11:02:01 -0500
+comments: true
+categories: javascript
+---
+
+# 工厂模式创建
+
+```
+function createPerson(name, age, job) {
+        var o = new Object();
+        o.name = name;
+        o.age = age;
+        o.job = job;
+        o.sayName = function() {
+            console.log(this.name)
+        }
+    }
+    var person1 = createPerson('daisy', 18, "student")
+```
+弊端：无法识别对象，即后面用的人不知道这个person1究竟是个什么东西。
+
+# 构造函数模式
+
+这种情况是采用new关键字的方式，来创造一个对象
+```
+/*构造函数模式*/
+module.exports = function() {
+    function Person(name, age, job) {
+        this.name = name;
+        this.age = age;
+        this.sayName = function() {
+            console.log('name:' + this.name)
+        }
+    }
+    var person1 = new Person('hanwen', 18, 'student');
+    person1.sayName()
+}
+```
+这种情况下是千万不能忽视这个new关键字，它做了以下的事情：
+1.创建一个新的对象obj
+2.将构造函数的作用域赋给新对象（因此this就指向了新的对象）
+3.执行构造函数中的代码
+4.返回这个对象
+![这里写图片描述](http://img.blog.csdn.net/20170728154642169?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+记住这几点：
+>Person的prototype是Person
+> person1的``__proto__``是Person
+> person1的``prototype``是undefined
+> person2的``__proto__``是Person
+
+可以通过constructor来检测对象类型；
+最好的方式是通过instanceof或者toString
+
+**一个new的实现**
+```
+var obj  = {};//创建一个新的空对象对象
+obj.__proto__ = Base.prototype;//将空对象的__proto__指向构造函数的prototype
+Base.call(obj);//将构造函数的作用域指向这个空对象，并执行构造函数
+//最后得到的对象就是一个实例化的对象
+```
+## 当做普通函数调用
+如果忘记写new关键字，那么this就绑定到全局上，如果实在BOM中，那就是绑定到window对象上去了；
+
+```
+ var person3 = Person('daisy', 18, 'student');
+ person3.sayName()//undefined
+ sayName();//name:daisy
+```
+## 在另一个函数的作用域调用
+这种情况在继承中常见
+
+```
+    var student = {
+        hobby: "reading"
+    }
+    Person.call(student, "daisyHawen", 18, 'student')
+```
+student:
+{ hobby: 'reading',
+  name: 'daisyHawen',
+  age: 18,
+  sayName: [Function] }
+
+
+## 问题
+每次实例化一个对象，都需要重新创建一遍所有的属性和方法，对于方法Function对象而言，这样做无疑是浪费内存。
+
+# 原型模式
+
+```
+module.exports = function() {
+    function Person() {}
+    Person.prototype.name = "daisy";
+    Person.prototype.age = 18;
+    Person.prototype.sayName = function() {
+        console.log(this.name);
+    }
+
+    var person1 = new Person();
+    person1.name = "hanwen"
+    person1.__proto__.nick = "class5"
+    person1.sayName()
+    var person2 = new Person();
+    var person3 = function() {}
+    console.log(Person.prototype.isPrototypeOf(person1))
+}
+```
+原型模式是因为当一个函数被创建的时候，会自动生成一个prototype属性，该prototype指向了一个原型对象
+##重写原型模式
+
+原型链可以重写，其实就是重新定义一遍原型对象，并把它的constructor指向构造函数对象（如果不指的话，constructor是Object），但是instanceof还是可以判断原型对象；
+下面这段代码，friend实例在原型对象定义之前，friend.sayName()报错了，是因为这个时候friend的```__proto__```还是指的原来的Person.Prototype，而这个prototype里面是没有定义sayName()的；
+```
+module.exports = function() {
+    function Person() {};
+    var friend = new Person();
+    Person.prototype = {
+        constructor: Person,
+        name: "Daisy",
+        age: 29,
+        job: "student",
+        sayName: function() {
+            console.log(this.name)
+        }
+    };
+    friend.sayName() //error
+}
+```
+重写原型对象切断了现有原型和任何之前已经存在的对象实例之间的联系；它引用的仍然是最初的原型。
+##原型模式的问题
+对于基本值的属性没有问题。
+对于包含引用值的属性来说，因为实例共享，而导致一些引用值变更了之后，所有实例的该值都变更了
+
+##组合使用函数模式和原型模式
+这是最普遍采用的方式：构造函数用于定义实例属性，原型模型用于定义共享的方法和共享的属性
+```
+/*组合使用构造函数模式和原型模式*/
+module.exports = function() {
+    function Person(name, age, job) {
+        this.name = name;
+        this.job = job;
+        this.age = age;
+        this.friends = ["shiely", "john"]
+    }
+    Person.prototype = {
+        constructor: Person,
+        sayName: function() {
+            console.log(this.name)
+        }
+    }
+    var person1 = new Person('daisy', 18, 'student');
+    var person2 = new Person('Hawen', 18, 'student')
+    person1.friends.push('lily');
+    console.log(person2.friends)
+}
+```
+
+##寄生构造函数模式
+
+```
+    function SpecialArray() {
+        //创建数组
+        var values = new Array();
+        values.push.apply(values, arguments);
+        //添加方法
+        values.toPipeString = function() {
+            return this.join("|");
+        };
+        //返回数组
+        return values;
+    }
+    console.log(colors instanceof Array) //true
+    console.log(colors instanceof SpecialArray) //false
+    var colors = new SpecialArray("red", "blue", "green");
+    console.log(colors.toPipeString());
+```
+![这里写图片描述](http://img.blog.csdn.net/20170730155051016?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+这样的寄生方式的instanceof获取不到colors的对象类型的。
+不过寄生方式在继承中会用到，所以可以注意一下
+
+## 稳妥构造函数模式
+
+```
+    function Person(name, age, job) {
+        //创建要返回的对象
+        var o = new Object();
+
+        //可以在这里定义私有变量和函数
+
+        //添加方法
+        o.sayName = function() {
+            console.log(name)
+        }
+    }
+```
