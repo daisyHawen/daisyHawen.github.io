@@ -1,34 +1,38 @@
 ---
-layout: default
+ layout: default 
 ---
 <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
     <header class="post-header">
         <h2 class="post-title">{{ page.title }}</h2>
         <p class="post-meta">
-            <time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">{{ page.date | date: "%b %-d, %Y" }}</time>{% if page.author %} • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">{{ page.author }}</span></span>{% endif %}</p>
+            <time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">{{ page.date | date: "%b %-d, %Y" }}</time>{% if page.author %} • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">{{ page.author }}</span></span>{%
+            endif %}</p>
         <hr>
     </header>
     <div>
-        information
-        <p>{{page.path}}</p>
-        <p>{{page.categories}}</p>
+        <!--information
+        <p>{{page.path}}</p>-->
+        <p>分类：{{page.categories}}</p>
     </div>
     <hr>
     <div class="post-content" itemprop="articleBody">
         {{ content }}
     </div>
     <!-- 多说评论框 start -->
-<div id="ds-thread" class="ds-thread" data-url="{{ page.url }}" data-title="{{ page.title }}" data-thread-key="{{ page.title }}"></div>
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"daisyhawen"};
-(function() {
-    var ds = document.createElement('script');
-    ds.type = 'text/javascript';ds.async = true;
-    ds.src = 'http://static.duoshuo.com/embed.js';
-    ds.charset = 'UTF-8';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
+    <div id="ds-thread" class="ds-thread" data-url="{{ page.url }}" data-title="{{ page.title }}" data-thread-key="{{ page.title }}"></div>
+    <script type="text/javascript">
+        var duoshuoQuery = {
+            short_name: "daisyhawen"
+        };
+        (function() {
+            var ds = document.createElement('script');
+            ds.type = 'text/javascript';
+            ds.async = true;
+            ds.src = 'http://static.duoshuo.com/embed.js';
+            ds.charset = 'UTF-8';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+        })();
+    </script>
     <!-- 多说公共JS代码 end -->
     <!-- To enable Disqus comments, comment out this code and insert your Disqus shortname -->
     <!-- {% if page.comments %}
@@ -50,5 +54,3 @@ var duoshuoQuery = {short_name:"daisyhawen"};
       <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
   {% endif %} -->
 </article>
-
-
