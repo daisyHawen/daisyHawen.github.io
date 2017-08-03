@@ -1,0 +1,261 @@
+---
+layout: post
+title:  "js之继承"
+date:   2017-07-31 11:02:01 -0500
+comments: true
+categories: javascript
+---
+
+前言
+
+---
+前天看阿里的内推已经挂了，已经是意料之中的，问了我很多原型和继承的东西，才发现我的基础那么渣。说实话关于原型、闭包、继承肯定是面试必问的，而了解、掌握、深入理解，这几点又完全不一样。所以上一篇我写了关于如何创建一个对象：工厂模式、构造函数模式、原型模式以及组合模式，寄生模式等等；并且又重新理解了一遍prototype和[[prototype]]（```__proto__```），这才算是真正的把这里理解清楚。
+
+这一篇就接着前面的开始将如何实现继承
+
+---
+
+# 简单原型链的继承
+
+```
+/*原型链的继承*/
+function SuperType() {
+    this.property = true;
+}
+SuperType.prototype.getSuperValue = function() {
+    return this.property;
+}
+
+function SubType() {
+    this.subProperty = false;
+}
+
+//继承了SuperType
+SubType.prototype = new SuperType();
+
+SubType.prototype.getSubValue = function() {
+    return this.subProperty;
+}
+var instance = new SubType();
+
+
+console.log(instance.getSuperValue());
+```
+**理解 :** 理解这里，关键是原型对象实例化的创建
+![这里写图片描述](http://img.blog.csdn.net/20170731103833721?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+1、对像的实例化，其实是将新对象的```__proto__```指向构造函数的Prototype
+2、构造函数的constructor指向构造函数本身
+
+一张图来说明继承的关系：
+![这里写图片描述](http://img.blog.csdn.net/20170731105740538?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+**说明：**
+1. superType继承了Object，因此```SuperType.prototype.__proto__=Object.prototype```
+2. SubType的prototype是实例化的SuperType，其实就好比说SubType.prototype是一个实例化对象，就跟那个Person没啥区别，因此```SubType.prototype.__proto__=SuperType.Prototype```
+3. 实例化的instance对象是SubType的实例化对象，一个对象没有原型对象，只有隐式对象（```__proto__```）只有function才有原型对象，因此这个instance的```__proto__```指向它构造函数SubType的prototype
+4. instance可以通过原型链获取所有原型链上面的方法和属性，如toString()、getSuperValue()等等；
+
+**原理：** SubType的prototype是实例化的SuperType，实质是重写原型对象，代之一个新类型的实例
+**缺点：**
+1. 还是原型创建函数的问题，原型链上面的属性会被所有实例共享，因此某些属性容易被一个实例改了之后，别的实例看到的就是改了之后的。
+2. 没办法传递参数
+
+**优点：**便于实现
+
+**检测原型**
+
+```
+    console.log(instance instanceof Object) //true
+    console.log(instance instanceof SuperType) //true
+    console.log(instance instanceof SubType) //true
+```
+用instanceof检测instance是Object
+
+# 借用构造函数
+
+```
+    function SuperType(colors) {
+        this.colors = ["red", "blue", "green"]
+    }
+
+    function SubType(colors) {
+        SuperType.call(this, colors)
+    }
+    var instance1 = new SubType();
+    instance1.colors.push("black")
+    console.log(instance1.colors) //["red", "blue", "green","black"]
+    var instance2 = new SubType();
+    console.log(instance2.colors) //["red", "blue", "green"]
+```
+构造函数解决了参数传递问题。
+但是问题和构造函数创建对象一样，父类中的方法不能够被子类继承，因此很少单独使用构造函数。
+
+# 组合继承
+
+组合继承是结合原型链继承和构造函数继承的一种方式。
+这种方式大概是最简单最适用，最容易理解的一种方式了吧。
+
+```
+    //定义父类
+    function SuperType(name) {
+        this.name = name;
+        this.color = ["red"];
+    }
+    SuperType.prototype.getName = function() {
+        console.log(this.name)
+    };
+    //定义子类
+    function SubType(name, age) {
+        SuperType.call(this, name);
+        this.age = age;
+    }
+    //通过原型链继承方法
+    SubType.prototype = new SuperType();
+    //子类方法
+    SubType.prototype.getAge = function() {
+        console.log(this.age)
+    }
+    var instance = new SubType('daisy', 18)
+    var instance2 = new SubType('lily', 18)
+    instance.getName() //daisy
+    instance.color.push('green')
+    console.log(instance2.color) //[ 'red' ]
+```
+** 优点 **：这样的定义既继承了原型链上面的方法，又可以传递属性，这种方式可以满足大多数继承的需求。
+** 缺点**：new SuperType();和 SuperType.call(this, name);调用了两次父类函数，因此就会存在一份多的父类实例属性。
+其实new SuperType()只需要继承原型链就好了，但是new会执行一次构造函数。
+
+# 原型式继承
+
+这种方式是针对前面的问题提出来的，如何只执行一次父类函数，并实现原型继承呢？
+
+```
+    function object(o) {
+        function F() {};
+        F.prototype = o;
+        return new F();
+    }
+    var person = {
+        name: "daisy",
+        friends: ['jay']
+    }
+    var anotherPerson = object(person);
+    anotherPerson.name = 'li';
+    anotherPerson.friends.push('jonh');
+    console.log(person.friends)
+```
+看这一段代码，说明：
+1. Person是一个对象，没有prototype对象，只有隐式原型
+2. object方法实质是，创建一个构造函数F，将person赋给F的原型，并返回一个实例对象
+3. 即```anotherPerson.__proto__=F.prototype=person```
+4. 因此，这里只实例化了一次Person对象，只不过借用了一个新的F，通过该F的prototype来传递
+
+**这也是ES5里面的object.create()实现方式**
+原理：浅复制
+
+缺点：无法实现代码复用和函数复用，因为返回的是一个对象，不是一个构造函数
+
+# 寄生式继承
+
+寄生式继承其实不外乎，就是给原型式继承的对象上面加一点函数和属性。
+
+```
+    function object(o) {
+        function F() {};
+        F.prototype = o;
+        return new F();
+    }
+    var SuperType = function() {
+        this.val = "super"
+    }
+    SuperType.prototype.getVal = function() {
+        console.log(this.val)
+    }
+    var superObj = new SuperType()
+    superObj.val = "superObj"  //给superObj添加属性或者方法
+    var sub = object(superObj);
+```
+其实就是给new SuperType() 添加一些属性和方法，那么sub创建的时候就会继承这个父类实例对象superObj的属性和方法了。
+因为它的隐式原型就指向的F.prototype(就是superObj)；
+
+不过更多的是把这个创建子类属性的过程放在一个函数中进行，跟上面的逻辑差不多。
+```
+   //创建一个新对象
+    function getSubObject(obj) {
+        var o = object(obj)
+        o.attr1 = 1;
+        o.attr2 = 2;
+        return o;
+    }
+```
+
+# 寄生组合式
+
+寄生组合式主要是通过寄生的方式减少了组合式的两次实例化父类对象。
+代码如下：
+```
+    function object(o) {
+        function F() {};
+        F.prototype = o;
+        return new F();
+    }
+
+    function inheritPrototype(subType, supertype) {
+        var prototype = object(supertype);
+        prototype.constructor = subType;
+        subType.prototype = prototype;
+    }
+    //父类
+    function Supertype(name) {
+        this.name = name;
+        this.color = ['red'];
+    }
+    Supertype.prototype.sayName = function() {
+        console.log(this.name);
+    }
+    //子类
+    function SubType(name, age) {
+        //构造函数模式传递属性
+        Supertype.call(this, name);
+        this.age = age
+    }
+    
+    //寄生方式为SubType创建prototype
+    inheritPrototype(SubType, Supertype);
+
+    SubType.prototype.sayAge = function() {
+        console.log(this.age)
+    }
+```
+其实寄生方式和组合方式唯一的区别在于，原型链的建立
+组合方式是 采用，中间那一次Base.call(obj);又一次在新对象上面创建了实例属性。
+```
+Subtype.prototype= new SuperType;
+//new 
+function new(){
+var obj  = {};//创建一个新的空对象对象
+obj.__proto__ = Base.prototype;//将空对象的__proto__指向构造函数的prototype
+Base.call(obj);//将构造函数的作用域指向这个空对象，并执行构造函数
+return obj;
+}
+```
+寄生方式是就避免了多次创建属性。
+
+```
+ function object(o) {
+        function F() {};
+        F.prototype = o;
+        return new F();
+    }
+function inheritPrototype(subType, supertype) {
+        var prototype = object(supertype.prototype); //返回一个父类函数对象（因为这个过程不是通过 new创建的，所以不会有实例属性的创建了）
+        prototype.constructor = subType;
+        subType.prototype = prototype;
+    }
+```
+![这里写图片描述](http://img.blog.csdn.net/20170803111723714?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjUxMjcwNDc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+最后继承的原型链都是一样的
+```
+SubType.prototype.__proto__=SuperType.prototype
+```
