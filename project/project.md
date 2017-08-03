@@ -1,5 +1,7 @@
---- 
-layout: default 
+---
+layout: page
+title: Project
+permalink: /project/
 ---
 <section id="cd-timeline" class="cd-container">
     <div class="cd-timeline-block">
@@ -41,21 +43,6 @@ layout: default
                 <br>技能：electron、angular、reactjs</p>
             <a href="#" class="cd-read-more" target="_blank">阅读全文</a>
             <span class="cd-date">2016-12-20</span>
-        </div>
-    </div>
-     <div class="cd-timeline-block">
-        <div class="cd-timeline-img cd-movie">
-            <img src="{{ site.baseurl }}/img/scllogo.gif" alt="Movie">
-        </div>
-        <div class="cd-timeline-content">
-            <h2>2014—2015</h2>
-            <p>侧重于Web开发
-                <br>仓库管理系统
-                <br>shop
-                <br>技术点：html,css,jquery,bootstrap
-                <br>掌握基本核心技能</p>
-            <a href="#" class="cd-read-more" target="_blank">learn more</a>
-            <span class="cd-date">2015-12-25</span>
         </div>
     </div>
     <div class="cd-timeline-block">
